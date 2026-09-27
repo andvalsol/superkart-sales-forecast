@@ -18,6 +18,15 @@ curl http://localhost:7860/readyz
 
 Open `http://localhost:8501` for the UI.
 
+## Live Codespace
+
+The public demonstration is available while the Codespace is running:
+
+- API: `https://superkart-deployment-w9jwq44vpp72g6gp-7860.app.github.dev`
+- Streamlit: `https://superkart-deployment-w9jwq44vpp72g6gp-8501.app.github.dev`
+
+GitHub may show a one-time access warning before opening a forwarded port. The Codespace stops after 30 minutes of inactivity, so these URLs are demonstration endpoints rather than permanent hosting.
+
 ## API
 
 Single prediction:

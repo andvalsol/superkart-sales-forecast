@@ -91,6 +91,9 @@ def validate_records(frame):
     validation_errors = []
     drift_warnings = []
     for column in NUMERIC_FEATURES:
+        if clean[column].map(lambda value: isinstance(value, (bool, np.bool_))).any():
+            validation_errors.append(f"{column} must contain finite numeric values")
+            continue
         converted = pd.to_numeric(clean[column], errors="coerce")
         invalid = converted.isna() | ~np.isfinite(converted)
         if invalid.any():
@@ -110,6 +113,8 @@ def validate_records(frame):
             validation_errors.append("Product_MRP must be positive")
         if (clean["Store_Age_Years"] < 0).any():
             validation_errors.append("Store_Age_Years cannot be negative")
+        if (clean["Store_Age_Years"] % 1 != 0).any():
+            validation_errors.append("Store_Age_Years must be a whole number")
 
     for column, allowed in ALLOWED_CATEGORIES.items():
         values = set(clean[column].dropna().astype(str))
@@ -187,7 +192,7 @@ def predict_batch():
 
     predictions = model.predict(clean)
     result = {str(index): round(float(value), 2) for index, value in zip(frame.index, predictions)}
-    return jsonify({"predictions": result, **validation})
+    return jsonify(result)
 
 
 @superkart_api.errorhandler(413)

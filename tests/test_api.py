@@ -60,7 +60,7 @@ def test_batch_matches_single_prediction(client):
     )
     single = client.post("/v1/predict", json=VALID_PAYLOAD)
     assert batch.status_code == 200
-    assert batch.get_json()["predictions"]["0"] == single.get_json()["prediction"]
+    assert batch.get_json()["0"] == single.get_json()["prediction"]
 
 
 def test_unseen_training_category_returns_drift_warning(client):
@@ -69,3 +69,14 @@ def test_unseen_training_category_returns_drift_warning(client):
     response = client.post("/v1/predict", json=payload)
     assert response.status_code == 200
     assert "unseen during training" in response.get_json()["warnings"][0]
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("Product_Weight", True), ("Store_Age_Years", 16.5)],
+)
+def test_invalid_numeric_types_are_rejected(client, field, value):
+    payload = VALID_PAYLOAD.copy()
+    payload[field] = value
+    response = client.post("/v1/predict", json=payload)
+    assert response.status_code == 422
