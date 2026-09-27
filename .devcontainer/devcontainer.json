@@ -1,0 +1,22 @@
+{
+  "name": "SuperKart Deployment",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [7860, 8501],
+  "portsAttributes": {
+    "7860": {
+      "label": "SuperKart API",
+      "onAutoForward": "notify",
+      "visibility": "public"
+    },
+    "8501": {
+      "label": "SuperKart UI",
+      "onAutoForward": "openBrowser",
+      "visibility": "public"
+    }
+  },
+  "postCreateCommand": "docker compose build",
+  "postStartCommand": "docker compose up -d"
+}
