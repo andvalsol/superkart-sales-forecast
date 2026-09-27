@@ -40,6 +40,9 @@ ALLOWED_CATEGORIES = {
     "Product_Id_char": {"FD", "DR", "NC"},
     "Product_Type_Category": {"Perishables", "Non Perishables"},
 }
+UNSEEN_TRAINING_CATEGORIES = {
+    "Store_Type": {"Supermarket Type3"},
+}
 TRAINING_RANGES = {
     "Product_Weight": (4.0, 22.0),
     "Product_Allocated_Area": (0.004, 0.298),
@@ -113,6 +116,9 @@ def validate_records(frame):
         invalid_values = sorted(values - allowed)
         if invalid_values:
             validation_errors.append(f"{column} has unsupported values: {invalid_values}")
+        unseen_values = sorted(values & UNSEEN_TRAINING_CATEGORIES.get(column, set()))
+        if unseen_values:
+            drift_warnings.append(f"{column} contains categories unseen during training: {unseen_values}")
 
     if clean.isna().any().any():
         validation_errors.append("Null values are not allowed")
@@ -181,9 +187,7 @@ def predict_batch():
 
     predictions = model.predict(clean)
     result = {str(index): round(float(value), 2) for index, value in zip(frame.index, predictions)}
-    if validation["warnings"]:
-        return jsonify({"predictions": result, **validation})
-    return jsonify(result)
+    return jsonify({"predictions": result, **validation})
 
 
 @superkart_api.errorhandler(413)
